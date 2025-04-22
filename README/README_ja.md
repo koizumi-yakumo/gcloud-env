@@ -31,7 +31,7 @@
 3. シェル設定に自動切り替え機能を追加します：
    ```bash
    # gcloud-env setup
-   source /path/to/gcloud-env/bin/gcloud-env
+   gcloud-env
    ```
 
 4. シェル設定をリロードします：
