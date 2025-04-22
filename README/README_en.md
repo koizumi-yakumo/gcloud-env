@@ -79,6 +79,14 @@ gcloud-env list
 gcloud-env current
 ```
 
+### Delete a configuration
+
+```bash
+gcloud-env delete my-project-config
+```
+
+This will delete the specified configuration. Note that you cannot delete the currently active configuration.
+
 ### Get help
 
 ```bash

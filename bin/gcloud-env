@@ -21,6 +21,7 @@ usage() {
   echo "Usage:"
   echo "  gcloud-env init [config_name]    - Initialize a new configuration for the current directory"
   echo "  gcloud-env use [config_name]     - Switch to a specific configuration"
+  echo "  gcloud-env delete [config_name]  - Delete a configuration"
   echo "  gcloud-env list                  - List all available configurations"
   echo "  gcloud-env current               - Show current active configuration"
   echo "  gcloud-env help                  - Show this help message"
@@ -156,6 +157,37 @@ current() {
   fi
 }
 
+# Function to delete a configuration
+delete() {
+  local config_name="$1"
+
+  if [ -z "$config_name" ]; then
+    echo "Error: Configuration name is required"
+    echo "Usage: gcloud-env delete [config_name]"
+    return 1
+  fi
+
+  local config_path="$GCLOUD_ENV_DIR/$config_name"
+
+  # Check if configuration exists
+  if [ ! -d "$config_path" ]; then
+    echo "Error: Configuration '$config_name' does not exist"
+    return 1
+  fi
+
+  # Check if the configuration is currently active
+  local current=$(current_config)
+  if [ "$config_name" = "$current" ]; then
+    echo "Error: Cannot delete the currently active configuration"
+    echo "Switch to another configuration first with 'gcloud-env use [config_name]'"
+    return 1
+  fi
+
+  # Delete the configuration
+  rm -rf "$config_path"
+  echo "Deleted configuration: $config_name"
+}
+
 # Main command handler
 case "$1" in
   init)
@@ -163,6 +195,9 @@ case "$1" in
     ;;
   use)
     use "$2"
+    ;;
+  delete)
+    delete "$2"
     ;;
   list)
     list

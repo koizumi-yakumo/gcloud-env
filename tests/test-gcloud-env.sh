@@ -73,6 +73,10 @@ run_test() {
 setup() {
   echo "Setting up test environment..."
 
+  # Clean up any existing test configurations
+  rm -rf "$HOME/.gcloud-env/$CONFIG1"
+  rm -rf "$HOME/.gcloud-env/$CONFIG2"
+
   # Create test directories
   mkdir -p "$PROJECT1_DIR" "$PROJECT2_DIR"
 
@@ -132,6 +136,16 @@ main() {
   run_test "current command after switching back" \
     "bash $GCLOUD_ENV_SCRIPT current" \
     "Current gcloud configuration: $CONFIG1"
+
+  # Test 8: Delete the second configuration
+  run_test "delete command" \
+    "bash $GCLOUD_ENV_SCRIPT delete $CONFIG2" \
+    "Deleted configuration: $CONFIG2"
+
+  # Test 9: Check that the deleted configuration is no longer in the list
+  run_test "list command after delete" \
+    "bash $GCLOUD_ENV_SCRIPT list" \
+    "$CONFIG1"
 
   # All tests passed
   echo -e "\n${GREEN}All tests passed!${NC}"

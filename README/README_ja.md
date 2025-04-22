@@ -79,6 +79,14 @@ gcloud-env list
 gcloud-env current
 ```
 
+### 設定を削除する
+
+```bash
+gcloud-env delete my-project-config
+```
+
+これにより、指定した設定が削除されます。現在アクティブな設定は削除できないことに注意してください。
+
 ### ヘルプを表示する
 
 ```bash
