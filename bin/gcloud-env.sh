@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+
+# gcloud-env - A tool to manage multiple gcloud configurations per project directory
+# Similar to asdf, but for gcloud configurations
+
+set -e
+
+GCLOUD_ENV_DIR="$HOME/.gcloud-env"
+GCLOUD_CONFIG_DIR="$HOME/.config/gcloud"
+
+# Create the gcloud-env directory if it doesn't exist
+if [ ! -d "$GCLOUD_ENV_DIR" ]; then
+  mkdir -p "$GCLOUD_ENV_DIR"
+  echo "Created gcloud-env directory at $GCLOUD_ENV_DIR"
+fi
+
+# Function to display usage information
+usage() {
+  echo "gcloud-env - Manage multiple gcloud configurations per project"
+  echo ""
+  echo "Usage:"
+  echo "  gcloud-env init [config_name]    - Initialize a new configuration for the current directory"
+  echo "  gcloud-env use [config_name]     - Switch to a specific configuration"
+  echo "  gcloud-env list                  - List all available configurations"
+  echo "  gcloud-env current               - Show current active configuration"
+  echo "  gcloud-env help                  - Show this help message"
+  echo ""
+  echo "To automatically switch configurations when changing directories,"
+  echo "add the following to your .bashrc or .zshrc:"
+  echo ""
+  echo '  # gcloud-env setup'
+  echo '  export GCLOUD_ENV_HOOK=1'
+  echo '  source /path/to/gcloud-env.sh'
+  echo '  _gcloud_env_hook() {'
+  echo '    if [ -f ".gcloud-env" ]; then'
+  echo '      gcloud-env use "$(cat .gcloud-env)"'
+  echo '    fi'
+  echo '  }'
+  echo '  if [ "$GCLOUD_ENV_HOOK" = "1" ]; then'
+  echo '    cd() { builtin cd "$@" && _gcloud_env_hook; }'
+  echo '  fi'
+}
+
+# Function to initialize a new configuration
+init() {
+  local config_name="$1"
+  
+  if [ -z "$config_name" ]; then
+    echo "Error: Configuration name is required"
+    echo "Usage: gcloud-env init [config_name]"
+    return 1
+  fi
+  
+  local config_path="$GCLOUD_ENV_DIR/$config_name"
+  
+  # Check if configuration already exists
+  if [ -d "$config_path" ]; then
+    echo "Configuration '$config_name' already exists"
+    return 1
+  fi
+  
+  # Create the configuration directory
+  mkdir -p "$config_path"
+  
+  # If gcloud is already configured, copy the current configuration
+  if [ -d "$GCLOUD_CONFIG_DIR" ]; then
+    cp -r "$GCLOUD_CONFIG_DIR/"* "$config_path/"
+    echo "Initialized new configuration '$config_name' with current gcloud settings"
+  else
+    echo "Initialized new empty configuration '$config_name'"
+    echo "You'll need to configure gcloud for this configuration"
+  fi
+  
+  # Create a .gcloud-env file in the current directory
+  echo "$config_name" > .gcloud-env
+  echo "Set current directory to use '$config_name' configuration"
+}
+
+# Function to switch to a specific configuration
+use() {
+  local config_name="$1"
+  
+  if [ -z "$config_name" ]; then
+    echo "Error: Configuration name is required"
+    echo "Usage: gcloud-env use [config_name]"
+    return 1
+  fi
+  
+  local config_path="$GCLOUD_ENV_DIR/$config_name"
+  
+  # Check if configuration exists
+  if [ ! -d "$config_path" ]; then
+    echo "Error: Configuration '$config_name' does not exist"
+    echo "Use 'gcloud-env init $config_name' to create it"
+    return 1
+  fi
+  
+  # Backup current configuration if it's not already a symlink
+  if [ -d "$GCLOUD_CONFIG_DIR" ] && [ ! -L "$GCLOUD_CONFIG_DIR" ]; then
+    local current=$(current_config)
+    if [ -n "$current" ]; then
+      echo "Backing up current configuration to '$current'"
+      rm -rf "$GCLOUD_ENV_DIR/$current"
+      mkdir -p "$GCLOUD_ENV_DIR/$current"
+      cp -r "$GCLOUD_CONFIG_DIR/"* "$GCLOUD_ENV_DIR/$current/"
+    fi
+  fi
+  
+  # Remove existing gcloud config directory or symlink
+  if [ -e "$GCLOUD_CONFIG_DIR" ]; then
+    rm -rf "$GCLOUD_CONFIG_DIR"
+  fi
+  
+  # Create the parent directory if it doesn't exist
+  mkdir -p "$(dirname "$GCLOUD_CONFIG_DIR")"
+  
+  # Create a symlink to the configuration
+  ln -s "$config_path" "$GCLOUD_CONFIG_DIR"
+  echo "Switched to gcloud configuration: $config_name"
+  
+  # Update the .gcloud-env file in the current directory
+  echo "$config_name" > .gcloud-env
+}
+
+# Function to list all available configurations
+list() {
+  echo "Available gcloud configurations:"
+  
+  if [ ! -d "$GCLOUD_ENV_DIR" ] || [ -z "$(ls -A "$GCLOUD_ENV_DIR")" ]; then
+    echo "  No configurations found"
+    return 0
+  fi
+  
+  local current=$(current_config)
+  
+  for config in "$GCLOUD_ENV_DIR"/*; do
+    if [ -d "$config" ]; then
+      local name=$(basename "$config")
+      if [ "$name" = "$current" ]; then
+        echo "* $name (active)"
+      else
+        echo "  $name"
+      fi
+    fi
+  done
+}
+
+# Function to get the current configuration
+current_config() {
+  if [ -L "$GCLOUD_CONFIG_DIR" ]; then
+    basename "$(readlink "$GCLOUD_CONFIG_DIR")"
+  elif [ -f ".gcloud-env" ]; then
+    cat ".gcloud-env"
+  fi
+}
+
+# Function to show the current configuration
+current() {
+  local current=$(current_config)
+  
+  if [ -n "$current" ]; then
+    echo "Current gcloud configuration: $current"
+  else
+    echo "No gcloud-env configuration is active"
+  fi
+}
+
+# Main command handler
+case "$1" in
+  init)
+    init "$2"
+    ;;
+  use)
+    use "$2"
+    ;;
+  list)
+    list
+    ;;
+  current)
+    current
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    if [ -z "$1" ]; then
+      current
+    else
+      echo "Unknown command: $1"
+      usage
+      exit 1
+    fi
+    ;;
+esac
+
+# If this script is being sourced and not executed directly,
+# define the hook function for automatic switching
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+  _gcloud_env_hook() {
+    if [ -f ".gcloud-env" ]; then
+      gcloud-env use "$(cat .gcloud-env)"
+    fi
+  }
+  
+  # Only define the cd override if the hook is enabled
+  if [ "$GCLOUD_ENV_HOOK" = "1" ]; then
+    cd() { builtin cd "$@" && _gcloud_env_hook; }
+  fi
+fi

@@ -1,0 +1,35 @@
+# gcloud-env .gitignore
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+tmp/
+temp/
+
+# User-specific configuration
+.gcloud-env
+
+# Test artifacts
+/tmp/gcloud-env-test/
+
+# Potential build artifacts
+*.o
+*.so
+*.dylib
+*.dll
