@@ -110,7 +110,7 @@ use() {
   mkdir -p "$(dirname "$GCLOUD_CONFIG_DIR")"
 
   # Create a symlink to the configuration
-  ln -s "$config_path" "$GCLOUD_CONFIG_DIR"
+  ln -sf "$config_path" "$GCLOUD_CONFIG_DIR"
   echo "Switched to gcloud configuration: $config_name"
 
   # Update the .gcloud-env file in the current directory
