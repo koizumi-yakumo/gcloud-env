@@ -27,8 +27,17 @@ CONFIG2="test-config2"
 cleanup() {
   echo "Cleaning up test directories..."
   rm -rf "$TEST_DIR"
+
+  # Also clean up the test configurations
+  echo "Cleaning up test configurations..."
+  rm -rf "$HOME/.gcloud-env/$CONFIG1"
+  rm -rf "$HOME/.gcloud-env/$CONFIG2"
+
   echo "Done."
 }
+
+# Ensure cleanup happens even if the script is interrupted
+trap cleanup EXIT INT TERM
 
 # Run a test and check the result
 run_test() {
