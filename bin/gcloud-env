@@ -226,8 +226,27 @@ esac
 # define the hook function for automatic switching
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
   _gcloud_env_hook() {
-    if [ -f ".gcloud-env" ]; then
-      gcloud-env use "$(cat .gcloud-env)"
+    # Find .gcloud-env file in current directory or any parent directory
+    local dir="$PWD"
+    local config_file=""
+
+    while [[ "$dir" != "/" ]]; do
+      if [[ -f "$dir/.gcloud-env" ]]; then
+        config_file="$dir/.gcloud-env"
+        break
+      fi
+      dir="$(dirname "$dir")"
+    done
+
+    # If we found a .gcloud-env file
+    if [[ -n "$config_file" ]]; then
+      local config_name="$(cat "$config_file")"
+      local current="$(current_config)"
+
+      # Only switch if the configuration is different from the current one
+      if [[ "$config_name" != "$current" ]]; then
+        gcloud-env use "$config_name"
+      fi
     fi
   }
 
