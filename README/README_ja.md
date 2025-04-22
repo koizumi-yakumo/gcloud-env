@@ -31,7 +31,7 @@
 3. シェル設定に自動切り替え機能を追加します：
    ```bash
    # gcloud-env setup
-   gcloud-env
+   source /path/to/gcloud-env/bin/gcloud-env
    ```
 
 4. シェル設定をリロードします：
@@ -97,7 +97,7 @@ gcloud-env help
 
 `gcloud-env`は以下の方法で動作します：
 
-1. 異なるgcloud設定を`~/.gcloud-env/`に保存する
+1. 異なるgcloud設定を`~/.config/gcloud-env/`に保存する
 2. `~/.config/gcloud`からアクティブな設定へのシンボリックリンクを作成する
 3. 各プロジェクトディレクトリに`.gcloud-env`ファイルを使用して、どの設定を使用するかを指定する
 4. ディレクトリを変更すると自動的に設定を切り替えるシェルフックを提供する

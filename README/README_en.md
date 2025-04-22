@@ -31,7 +31,7 @@ When working with multiple Google Cloud projects, switching between different gc
 3. Set up the auto-switching functionality by adding to your shell configuration:
    ```bash
    # gcloud-env setup
-   gcloud-env
+   source /path/to/gcloud-env/bin/gcloud-env
    ```
 
 4. Reload your shell configuration:
@@ -97,7 +97,7 @@ gcloud-env help
 
 `gcloud-env` works by:
 
-1. Storing different gcloud configurations in `~/.gcloud-env/`
+1. Storing different gcloud configurations in `~/.config/gcloud-env/`
 2. Creating a symlink from `~/.config/gcloud` to the active configuration
 3. Using a `.gcloud-env` file in each project directory to specify which configuration to use
 4. Providing a shell hook that automatically switches configurations when changing directories

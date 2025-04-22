@@ -30,8 +30,8 @@ cleanup() {
 
   # Also clean up the test configurations
   echo "Cleaning up test configurations..."
-  rm -rf "$HOME/.gcloud-env/$CONFIG1"
-  rm -rf "$HOME/.gcloud-env/$CONFIG2"
+  rm -rf "$HOME/.config/gcloud-env/$CONFIG1"
+  rm -rf "$HOME/.config/gcloud-env/$CONFIG2"
 
   echo "Done."
 }
@@ -74,8 +74,8 @@ setup() {
   echo "Setting up test environment..."
 
   # Clean up any existing test configurations
-  rm -rf "$HOME/.gcloud-env/$CONFIG1"
-  rm -rf "$HOME/.gcloud-env/$CONFIG2"
+  rm -rf "$HOME/.config/gcloud-env/$CONFIG1"
+  rm -rf "$HOME/.config/gcloud-env/$CONFIG2"
 
   # Create test directories
   mkdir -p "$PROJECT1_DIR" "$PROJECT2_DIR"

@@ -5,7 +5,7 @@
 
 set -e
 
-GCLOUD_ENV_DIR="$HOME/.gcloud-env"
+GCLOUD_ENV_DIR="$HOME/.config/gcloud-env"
 GCLOUD_CONFIG_DIR="$HOME/.config/gcloud"
 
 # Create the gcloud-env directory if it doesn't exist
@@ -55,8 +55,8 @@ init() {
   mkdir -p "$config_path"
 
   # If gcloud is already configured, copy the current configuration
-  if [ -d "$GCLOUD_CONFIG_DIR" ]; then
-    cp -r "$GCLOUD_CONFIG_DIR/"* "$config_path/"
+  if [ -d "$GCLOUD_CONFIG_DIR" ] && [ "$(ls -A "$GCLOUD_CONFIG_DIR" 2>/dev/null)" ]; then
+    cp -r "$GCLOUD_CONFIG_DIR/"* "$config_path/" 2>/dev/null || true
     echo "Initialized new configuration '$config_name' with current gcloud settings"
   else
     echo "Initialized new empty configuration '$config_name'"
@@ -66,6 +66,9 @@ init() {
   # Create a .gcloud-env file in the current directory
   echo "$config_name" > .gcloud-env
   echo "Set current directory to use '$config_name' configuration"
+
+  # Switch to the new configuration
+  use "$config_name"
 }
 
 # Function to switch to a specific configuration
