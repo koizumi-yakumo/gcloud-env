@@ -96,4 +96,4 @@ gcloud-env help
 
 ## ライセンス
 
-MIT
+このプロジェクトはBSD 3-Clauseライセンスの下で提供されています - 詳細は[LICENSE.md](../LICENSE.md)ファイルをご覧ください。
