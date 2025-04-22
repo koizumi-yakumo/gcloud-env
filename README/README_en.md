@@ -31,7 +31,7 @@ When working with multiple Google Cloud projects, switching between different gc
 3. Set up the auto-switching functionality by adding to your shell configuration:
    ```bash
    # gcloud-env setup
-   export GCLOUD_ENV_HOOK=1
+   source /path/to/gcloud-env/bin/gcloud-env
    ```
 
 4. Reload your shell configuration:

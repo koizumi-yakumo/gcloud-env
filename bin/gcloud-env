@@ -29,16 +29,7 @@ usage() {
   echo "add the following to your .bashrc or .zshrc:"
   echo ""
   echo '  # gcloud-env setup'
-  echo '  export GCLOUD_ENV_HOOK=1'
   echo '  source /path/to/gcloud-env'
-  echo '  _gcloud_env_hook() {'
-  echo '    if [ -f ".gcloud-env" ]; then'
-  echo '      gcloud-env use "$(cat .gcloud-env)"'
-  echo '    fi'
-  echo '  }'
-  echo '  if [ "$GCLOUD_ENV_HOOK" = "1" ]; then'
-  echo '    cd() { builtin cd "$@" && _gcloud_env_hook; }'
-  echo '  fi'
 }
 
 # Function to initialize a new configuration
@@ -202,8 +193,6 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
     fi
   }
 
-  # Only define the cd override if the hook is enabled
-  if [ "$GCLOUD_ENV_HOOK" = "1" ]; then
-    cd() { builtin cd "$@" && _gcloud_env_hook; }
-  fi
+  # Always define the cd override for automatic switching
+  cd() { builtin cd "$@" && _gcloud_env_hook; }
 fi
