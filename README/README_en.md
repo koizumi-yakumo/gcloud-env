@@ -32,7 +32,6 @@ When working with multiple Google Cloud projects, switching between different gc
    ```bash
    # gcloud-env setup
    export GCLOUD_ENV_HOOK=1
-   source /path/to/gcloud-env/bin/gcloud-env.sh
    ```
 
 4. Reload your shell configuration:
