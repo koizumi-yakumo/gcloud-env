@@ -142,10 +142,12 @@ list() {
 
 # Function to get the current configuration
 current_config() {
+  local check_dir="${1:-$PWD}"
+
   if [ -L "$GCLOUD_CONFIG_DIR" ]; then
     basename "$(readlink "$GCLOUD_CONFIG_DIR")"
-  elif [ -f ".gcloud-env" ]; then
-    cat ".gcloud-env"
+  elif [ -f "$check_dir/.gcloud-env" ]; then
+    cat "$check_dir/.gcloud-env"
   fi
 }
 
@@ -240,8 +242,9 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
 
     # If we found a .gcloud-env file
     if [[ -n "$config_file" ]]; then
+      local config_dir="$(dirname "$config_file")"
       local config_name="$(cat "$config_file")"
-      local current="$(current_config)"
+      local current="$(current_config "$config_dir")"
 
       # Only switch if the configuration is different from the current one
       if [[ "$config_name" != "$current" ]]; then
