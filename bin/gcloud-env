@@ -149,8 +149,7 @@ current_config() {
     if [ -n "$target" ] && [ -d "$target" ]; then
       basename "$target"
     else
-      echo "Warning: Broken symlink detected at $GCLOUD_CONFIG_DIR" >&2
-      # Return empty string instead of error code to avoid script termination
+      # Silently handle broken symlink and return empty string
       echo ""
     fi
   elif [ -f "$check_dir/.gcloud-env" ]; then
