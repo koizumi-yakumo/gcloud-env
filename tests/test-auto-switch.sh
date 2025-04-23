@@ -10,9 +10,10 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-# Path to the gcloud-env script
+# Path to the gcloud-env scripts
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GCLOUD_ENV_SCRIPT="$SCRIPT_DIR/../bin/gcloud-env"
+GCLOUD_ENV_AUTO_SWITCH_SCRIPT="$SCRIPT_DIR/../bin/gcloud-env-auto-switch"
 
 # Test directories
 TEST_DIR="/tmp/gcloud-env-auto-switch-test"
@@ -51,8 +52,8 @@ setup() {
   # Create test directories
   mkdir -p "$PROJECT1_DIR" "$PROJECT2_DIR" "$PROJECT1_SUBDIR"
 
-  # Source the gcloud-env script to enable auto-switching
-  source "$GCLOUD_ENV_SCRIPT"
+  # Source the gcloud-env-auto-switch script to enable auto-switching
+  source "$GCLOUD_ENV_AUTO_SWITCH_SCRIPT"
 
   echo "Test environment ready."
 }
@@ -61,7 +62,7 @@ setup() {
 check_config() {
   local expected="$1"
   local current=$($GCLOUD_ENV_SCRIPT current | grep -o "$expected")
-  
+
   if [[ "$current" == "$expected" ]]; then
     echo -e "${GREEN}PASSED${NC}: Current configuration is $expected as expected"
     return 0

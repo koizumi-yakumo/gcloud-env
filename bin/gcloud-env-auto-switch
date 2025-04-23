@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# gcloud-env-auto-switch - Automatic switching functionality for gcloud-env
+# This script should be sourced directly from your .zshrc or .bashrc
+#
+# Usage:
+#   Add the following to your .zshrc or .bashrc:
+#   source /path/to/gcloud-env-auto-switch
+#
+# This will enable automatic switching of gcloud configurations
+# when changing directories.
+
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Source the main gcloud-env script to access its functions
+source "$SCRIPT_DIR/gcloud-env"
+
+# Define the hook function for automatic switching
+_gcloud_env_hook() {
+  # Find .gcloud-env file in current directory or any parent directory
+  local dir="$PWD"
+  local config_file=""
+
+  while [[ "$dir" != "/" ]]; do
+    if [[ -f "$dir/.gcloud-env" ]]; then
+      config_file="$dir/.gcloud-env"
+      break
+    fi
+    dir="$(dirname "$dir")"
+  done
+
+  # If we found a .gcloud-env file
+  if [[ -n "$config_file" ]]; then
+    local config_dir="$(dirname "$config_file")"
+    local config_name="$(cat "$config_file")"
+    local current="$(current_config "$config_dir")"
+
+    # Only switch if the configuration is different from the current one
+    if [[ "$config_name" != "$current" ]]; then
+      gcloud-env use "$config_name"
+    fi
+  fi
+  # If no .gcloud-env file is found, do nothing and let cd behave normally
+  # This ensures that the script doesn't crash when .gcloud-env doesn't exist
+}
+
+# Always define the cd override for automatic switching
+cd() { builtin cd "$@" && _gcloud_env_hook; }
