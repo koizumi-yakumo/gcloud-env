@@ -85,9 +85,9 @@ use() {
 
   # Check if configuration exists
   if [ ! -d "$config_path" ]; then
-    echo "Error: Configuration '$config_name' does not exist"
-    echo "Use 'gcloud-env init $config_name' to create it"
-    return 1
+    echo "Warning: Configuration '$config_name' does not exist"
+    echo "Creating it automatically..."
+    mkdir -p "$config_path"
   fi
 
   # Backup current configuration if it's not already a symlink
@@ -145,7 +145,14 @@ current_config() {
   local check_dir="${1:-$PWD}"
 
   if [ -L "$GCLOUD_CONFIG_DIR" ]; then
-    basename "$(readlink "$GCLOUD_CONFIG_DIR")"
+    local target=$(readlink "$GCLOUD_CONFIG_DIR" || echo "")
+    if [ -n "$target" ] && [ -d "$target" ]; then
+      basename "$target"
+    else
+      echo "Warning: Broken symlink detected at $GCLOUD_CONFIG_DIR" >&2
+      # Return empty string instead of error code to avoid script termination
+      echo ""
+    fi
   elif [ -f "$check_dir/.gcloud-env" ]; then
     cat "$check_dir/.gcloud-env"
   fi
@@ -251,6 +258,8 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
         gcloud-env use "$config_name"
       fi
     fi
+    # If no .gcloud-env file is found, do nothing and let cd behave normally
+    # This ensures that the script doesn't crash when .gcloud-env doesn't exist
   }
 
   # Always define the cd override for automatic switching
