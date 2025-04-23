@@ -222,7 +222,7 @@ case "$1" in
     ;;
   *)
     if [ -z "$1" ]; then
-      current
+      # Do nothing when no arguments are provided
     else
       echo "Unknown command: $1"
       usage
