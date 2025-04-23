@@ -13,8 +13,26 @@
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Source the main gcloud-env script to access its functions
-source "$SCRIPT_DIR/gcloud-env"
+# Define the gcloud config directory
+GCLOUD_CONFIG_DIR="$HOME/.config/gcloud"
+
+# Function to get the current configuration
+current_config() {
+  local check_dir="${1:-$PWD}"
+
+  if [ -L "$GCLOUD_CONFIG_DIR" ]; then
+    local target=$(readlink "$GCLOUD_CONFIG_DIR" || echo "")
+    if [ -n "$target" ] && [ -d "$target" ]; then
+      basename "$target"
+    else
+      echo "Warning: Broken symlink detected at $GCLOUD_CONFIG_DIR" >&2
+      # Return empty string instead of error code to avoid script termination
+      echo ""
+    fi
+  elif [ -f "$check_dir/.gcloud-env" ]; then
+    cat "$check_dir/.gcloud-env"
+  fi
+}
 
 # Define the hook function for automatic switching
 _gcloud_env_hook() {
